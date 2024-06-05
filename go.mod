@@ -6,7 +6,7 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.27.1
 	github.com/aws/aws-sdk-go-v2/config v1.27.17
 	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.16.22
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.54.4
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.55.0
 	github.com/dsh2dsh/expx-dotenv v1.3.2
 	github.com/schollz/progressbar/v3 v3.14.3
 	github.com/spf13/cobra v1.8.0
