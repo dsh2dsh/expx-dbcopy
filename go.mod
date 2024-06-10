@@ -5,7 +5,7 @@ go 1.22
 require (
 	github.com/aws/aws-sdk-go-v2 v1.27.2
 	github.com/aws/aws-sdk-go-v2/config v1.27.18
-	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.16.23
+	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.16.24
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.55.1
 	github.com/dsh2dsh/expx-dotenv v1.3.2
 	github.com/schollz/progressbar/v3 v3.14.4
