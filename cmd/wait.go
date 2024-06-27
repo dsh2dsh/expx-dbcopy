@@ -45,12 +45,21 @@ var (
 	}
 
 	waitMax time.Duration
-
-	green      = lipgloss.NewStyle().Foreground(lipgloss.Color("2")).Render
-	helpStyle  = lipgloss.NewStyle().Foreground(lipgloss.Color("#626262")).Render
-	sinceStyle = lipgloss.NewStyle().Width(barPad).Padding(0, 1).
-			AlignHorizontal(lipgloss.Right).Render
 )
+
+type waitMsg struct {
+	started bool
+	size    int64
+	err     error
+}
+
+func tickCmd(d time.Duration) tea.Cmd {
+	return tea.Tick(d, func(t time.Time) tea.Msg {
+		return tickMsg(t)
+	})
+}
+
+type tickMsg time.Time
 
 func init() {
 	waitCmd.Flags().DurationVarP(&waitMax, "timeout", "t", 30*time.Minute,
@@ -58,6 +67,7 @@ func init() {
 }
 
 func Wait(object string) error {
+	lipgloss.SetDefaultRenderer(lipgloss.NewRenderer(os.Stderr))
 	model := NewWaitModel(s3Client, s3Bucket, object).WithTimeout(waitMax)
 	defer model.Wait()
 	progress := tea.NewProgram(model, tea.WithOutput(os.Stderr))
@@ -75,6 +85,8 @@ func Wait(object string) error {
 	return nil
 }
 
+// ==================================================
+
 func NewWaitModel(client *s3.Client, bucket string, object string) *WaitModel {
 	ctx, cancel := context.WithCancelCause(context.Background())
 	return &WaitModel{
@@ -82,11 +94,12 @@ func NewWaitModel(client *s3.Client, bucket string, object string) *WaitModel {
 		bucket: bucket,
 		object: object,
 
-		running: ctx,
-		cancel:  cancel,
-
+		styles: newWaitStyles(lipgloss.DefaultRenderer()),
 		progress: progress.New(progress.WithoutPercentage(),
 			progress.WithDefaultGradient()),
+
+		running: ctx,
+		cancel:  cancel,
 	}
 }
 
@@ -100,6 +113,7 @@ type WaitModel struct {
 	startedAt time.Time
 	b         strings.Builder
 
+	styles   waitStyles
 	percent  float64
 	progress progress.Model
 
@@ -109,21 +123,38 @@ type WaitModel struct {
 	contentLength int64
 }
 
-type (
-	waitMsg struct {
-		started bool
-		size    int64
-		err     error
-	}
-)
+// ==================================================
 
-func tickCmd(d time.Duration) tea.Cmd {
-	return tea.Tick(d, func(t time.Time) tea.Msg {
-		return tickMsg(t)
-	})
+func newWaitStyles(r *lipgloss.Renderer) waitStyles {
+	s := r.NewStyle()
+	styles := waitStyles{
+		green: s.Foreground(lipgloss.Color("2")),
+		help: s.SetString("Press Esc/C-c/q to quit").Foreground(
+			lipgloss.Color("#626262")),
+		since: s.Width(barPad).Padding(0, 1).AlignHorizontal(lipgloss.Right),
+	}
+	return styles
 }
 
-type tickMsg time.Time
+type waitStyles struct {
+	green lipgloss.Style
+	help  lipgloss.Style
+	since lipgloss.Style
+}
+
+func (self *waitStyles) Green(s ...string) string {
+	return self.green.Render(s...)
+}
+
+func (self *waitStyles) Help(s ...string) string {
+	return self.help.Render(s...)
+}
+
+func (self *waitStyles) Since(s ...string) string {
+	return self.since.Render(s...)
+}
+
+// ==================================================
 
 func (self *WaitModel) WithTimeout(d time.Duration) *WaitModel {
 	self.waitMax = d
@@ -177,11 +208,13 @@ func (self *WaitModel) quitCmd() tea.Msg {
 }
 
 func (self *WaitModel) handleWaits(m waitMsg) (*WaitModel, tea.Cmd) {
+	style := &self.styles
+
 	if m.err != nil {
 		self.cancel(m.err)
 		return self, self.quitCmd
 	} else if m.started {
-		return self, tea.Sequence(tea.Println(green("✓ started"),
+		return self, tea.Sequence(tea.Println(style.Green("✓ started"),
 			" [", time.Since(self.startedAt).Truncate(time.Second), "]"))
 	}
 
@@ -189,7 +222,7 @@ func (self *WaitModel) handleWaits(m waitMsg) (*WaitModel, tea.Cmd) {
 	humanSize, sizeSuffix := humanizeBytes(m.size, true)
 
 	return self, tea.Sequence(
-		tea.Println(green("✓ ok:"),
+		tea.Println(style.Green("✓ ok:"),
 			" ", humanSize, " ", sizeSuffix,
 			" [", time.Since(self.startedAt).Truncate(time.Second), "]"),
 		self.quitCmd)
@@ -200,12 +233,13 @@ func (self *WaitModel) View() string {
 		return ""
 	}
 
+	style := &self.styles
 	b := self.b
 	b.Reset()
 	b.WriteString("\n")
 
 	d := time.Since(self.startedAt)
-	b.WriteString(sinceStyle(d.Truncate(time.Second).String()))
+	b.WriteString(style.Since(d.Truncate(time.Second).String()))
 
 	b.WriteString(self.progress.ViewAs(self.percent))
 
@@ -214,7 +248,7 @@ func (self *WaitModel) View() string {
 	b.WriteString(timeLeft.Truncate(time.Second).String())
 
 	b.WriteString("\n\n")
-	b.WriteString(helpStyle("Press Esc/C-c/q to quit"))
+	b.WriteString(style.Help())
 
 	return b.String()
 }
