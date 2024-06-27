@@ -16,6 +16,7 @@ import (
 	"github.com/charmbracelet/bubbles/progress"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/muesli/termenv"
 	"github.com/spf13/cobra"
 )
 
@@ -67,7 +68,9 @@ func init() {
 }
 
 func Wait(object string) error {
+	termenv.SetDefaultOutput(termenv.NewOutput(os.Stderr))
 	lipgloss.SetDefaultRenderer(lipgloss.NewRenderer(os.Stderr))
+
 	model := NewWaitModel(s3Client, s3Bucket, object).WithTimeout(waitMax)
 	defer model.Wait()
 	progress := tea.NewProgram(model, tea.WithOutput(os.Stderr))
