@@ -3,33 +3,34 @@ module github.com/dsh2dsh/expx-dbcopy
 go 1.22
 
 require (
-	github.com/aws/aws-sdk-go-v2 v1.30.0
-	github.com/aws/aws-sdk-go-v2/config v1.27.21
+	github.com/aws/aws-sdk-go-v2 v1.30.1
+	github.com/aws/aws-sdk-go-v2/config v1.27.23
 	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.17.1
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.56.1
 	github.com/charmbracelet/bubbles v0.18.0
 	github.com/charmbracelet/bubbletea v0.26.6
 	github.com/charmbracelet/lipgloss v0.9.1
 	github.com/dsh2dsh/expx-dotenv v1.3.2
+	github.com/muesli/termenv v0.15.2
 	github.com/spf13/cobra v1.8.1
 )
 
 require (
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.6.2 // indirect
-	github.com/aws/aws-sdk-go-v2/credentials v1.17.21 // indirect
-	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.16.8 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/configsources v1.3.12 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.6.12 // indirect
+	github.com/aws/aws-sdk-go-v2/credentials v1.17.23 // indirect
+	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.16.9 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/configsources v1.3.13 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.6.13 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/ini v1.8.0 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/v4a v1.3.12 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.11.2 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.11.3 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.3.14 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.11.14 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.11.15 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.17.12 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sso v1.21.1 // indirect
-	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.25.1 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sts v1.29.1 // indirect
-	github.com/aws/smithy-go v1.20.2 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sso v1.22.1 // indirect
+	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.26.1 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sts v1.30.1 // indirect
+	github.com/aws/smithy-go v1.20.3 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/charmbracelet/harmonica v0.2.0 // indirect
 	github.com/charmbracelet/x/ansi v0.1.2 // indirect
@@ -47,7 +48,6 @@ require (
 	github.com/muesli/ansi v0.0.0-20230316100256-276c6243b2f6 // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
 	github.com/muesli/reflow v0.3.0 // indirect
-	github.com/muesli/termenv v0.15.2 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
