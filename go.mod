@@ -8,7 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.17.40
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.68.0
 	github.com/charmbracelet/bubbles v0.20.0
-	github.com/charmbracelet/bubbletea v1.2.3
+	github.com/charmbracelet/bubbletea v1.2.4
 	github.com/charmbracelet/lipgloss v1.0.0
 	github.com/dsh2dsh/expx-dotenv v1.3.2
 	github.com/muesli/termenv v0.15.2
