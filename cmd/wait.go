@@ -11,12 +11,13 @@ import (
 	"sync"
 	"time"
 
+	"charm.land/bubbles/v2/progress"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/charmbracelet/bubbles/progress"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
-	"github.com/muesli/termenv"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
+	"github.com/aws/smithy-go"
 	"github.com/spf13/cobra"
 )
 
@@ -68,9 +69,6 @@ func init() {
 }
 
 func Wait(object string) error {
-	termenv.SetDefaultOutput(termenv.NewOutput(os.Stderr))
-	lipgloss.SetDefaultRenderer(lipgloss.NewRenderer(os.Stderr))
-
 	model := NewWaitModel(s3Client, s3Bucket, object).WithTimeout(waitMax)
 	defer model.Wait()
 	progress := tea.NewProgram(model, tea.WithOutput(os.Stderr))
@@ -97,9 +95,9 @@ func NewWaitModel(client *s3.Client, bucket string, object string) *WaitModel {
 		bucket: bucket,
 		object: object,
 
-		styles: newWaitStyles(lipgloss.DefaultRenderer()),
+		styles: newWaitStyles(),
 		progress: progress.New(progress.WithoutPercentage(),
-			progress.WithDefaultGradient()),
+			progress.WithDefaultBlend()),
 
 		running: ctx,
 		cancel:  cancel,
@@ -126,12 +124,14 @@ type WaitModel struct {
 	contentLength int64
 }
 
+var _ tea.Model = (*WaitModel)(nil)
+
 // ==================================================
 
-func newWaitStyles(r *lipgloss.Renderer) waitStyles {
-	s := r.NewStyle()
+func newWaitStyles() waitStyles {
+	s := lipgloss.NewStyle()
 	styles := waitStyles{
-		green: s.Foreground(lipgloss.Color("2")),
+		green: s.Foreground(lipgloss.Green),
 		help: s.SetString("Press Esc/C-c/q to quit").Foreground(
 			lipgloss.Color("#626262")),
 		since: s.Width(barPad).Padding(0, 1).AlignHorizontal(lipgloss.Right),
@@ -184,9 +184,9 @@ func (self *WaitModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case waitMsg:
 		return self.handleWaits(msg)
 	case tea.WindowSizeMsg:
-		self.progress.Width = msg.Width - barPad*2
-		if self.progress.Width > barMaxWidth {
-			self.progress.Width = barMaxWidth
+		self.progress.SetWidth(msg.Width - barPad*2)
+		if self.progress.Width() > barMaxWidth {
+			self.progress.SetWidth(barMaxWidth)
 		}
 	case tickMsg:
 		self.percent = min(1.0,
@@ -231,9 +231,9 @@ func (self *WaitModel) handleWaits(m waitMsg) (*WaitModel, tea.Cmd) {
 		self.quitCmd)
 }
 
-func (self *WaitModel) View() string {
+func (self *WaitModel) View() tea.View {
 	if self.running.Err() != nil {
-		return ""
+		return tea.View{}
 	}
 
 	style := &self.styles
@@ -253,7 +253,8 @@ func (self *WaitModel) View() string {
 	b.WriteString("\n\n")
 	b.WriteString(style.Help())
 
-	return b.String()
+	v := tea.NewView(b.String())
+	return v
 }
 
 func (self *WaitModel) waitStarted() tea.Cmd {
