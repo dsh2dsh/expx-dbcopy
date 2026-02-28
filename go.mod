@@ -5,7 +5,7 @@ go 1.24.2
 require (
 	github.com/aws/aws-sdk-go-v2 v1.41.2
 	github.com/aws/aws-sdk-go-v2/config v1.32.10
-	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.17.67
+	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.22.4
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.96.2
 	github.com/charmbracelet/bubbles v1.0.0
 	github.com/charmbracelet/bubbletea v1.3.10
