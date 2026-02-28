@@ -271,8 +271,11 @@ func (self *WaitModel) waitStarted() tea.Cmd {
 func (self *WaitModel) waitObject(ctx context.Context, key string,
 	callbacks ...func(headObject *s3.HeadObjectOutput),
 ) error {
-	h, err := s3.NewObjectExistsWaiter(self.client).WaitForOutput(
-		ctx, &s3.HeadObjectInput{
+	h, err := s3.NewObjectExistsWaiter(self.client,
+		func(opts *s3.ObjectExistsWaiterOptions) {
+			opts.Retryable = objectExistsStateRetryable
+		}).
+		WaitForOutput(ctx, &s3.HeadObjectInput{
 			Bucket: aws.String(self.bucket),
 			Key:    aws.String(key),
 		}, self.waitMax)
@@ -284,6 +287,25 @@ func (self *WaitModel) waitObject(ctx context.Context, key string,
 		fn(h)
 	}
 	return nil
+}
+
+func objectExistsStateRetryable(ctx context.Context, input *s3.HeadObjectInput,
+	output *s3.HeadObjectOutput, err error,
+) (bool, error) {
+	if err == nil {
+		return false, nil
+	}
+
+	var errorType *types.NotFound
+	if errors.As(err, &errorType) {
+		return true, nil
+	}
+
+	var ae smithy.APIError
+	if errors.As(err, &ae); ae.ErrorCode() == "Forbidden" {
+		return true, nil
+	}
+	return false, err
 }
 
 func (self *WaitModel) waitError() tea.Cmd {
