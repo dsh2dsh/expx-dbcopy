@@ -10,7 +10,7 @@ require (
 	github.com/charmbracelet/bubbles v1.0.0
 	github.com/charmbracelet/bubbletea v1.3.10
 	github.com/charmbracelet/lipgloss v1.1.0
-	github.com/dsh2dsh/expx-dotenv v1.3.2
+	github.com/dsh2dsh/expx-dotenv v1.4.0
 	github.com/muesli/termenv v0.16.0
 	github.com/spf13/cobra v1.9.1
 )
