@@ -10,6 +10,11 @@ formatters:
     - "goimports"
 
   settings:
+    gofumpt:
+      # Choose whether to use the extra rules.
+      # Default: false
+      extra-rules: true
+
     goimports:
       # A list of prefixes, which, if set, checks import paths
       # with the given prefixes are grouped after 3rd-party packages.
@@ -22,10 +27,12 @@ linters:
     - "asciicheck"
     - "bidichk"
     - "copyloopvar"
+    - "embeddedstructfieldcheck"
     - "errorlint"
     - "gocritic"
     - "makezero"
     - "misspell"
+    - "modernize"
     - "nilnesserr"
     - "nolintlint"
     - "perfsprint"
@@ -49,6 +56,15 @@ linters:
         - "io.Copy(*bytes.Buffer)"
         - "io.Copy(os.Stdout)"
         - "(io.ReadCloser).Close"
+
+      # Display function signature instead of selector.
+      # Default: false
+      verbose: true
+
+    errorlint:
+      allowed-errors:
+        - err: "io.EOF"
+          fun: "io.ReadAll"
 
     nolintlint:
       # Enable to require an explanation of nonzero length after each nolint
@@ -104,4 +120,5 @@ linters:
       - path: '_test\.go'
         linters:
           - "errcheck"
+          - "prealloc"
           - "wrapcheck"

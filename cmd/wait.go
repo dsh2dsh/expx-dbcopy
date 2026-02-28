@@ -56,9 +56,7 @@ type waitMsg struct {
 }
 
 func tickCmd(d time.Duration) tea.Cmd {
-	return tea.Tick(d, func(t time.Time) tea.Msg {
-		return tickMsg(t)
-	})
+	return tea.Tick(d, func(t time.Time) tea.Msg { return tickMsg(t) })
 }
 
 type tickMsg time.Time
@@ -88,7 +86,7 @@ func Wait(object string) error {
 
 // ==================================================
 
-func NewWaitModel(client *s3.Client, bucket string, object string) *WaitModel {
+func NewWaitModel(client *s3.Client, bucket, object string) *WaitModel {
 	ctx, cancel := context.WithCancelCause(context.Background())
 	return &WaitModel{
 		client: client,
@@ -132,8 +130,8 @@ func newWaitStyles() waitStyles {
 	s := lipgloss.NewStyle()
 	styles := waitStyles{
 		green: s.Foreground(lipgloss.Green),
-		help: s.SetString("Press Esc/C-c/q to quit").Foreground(
-			lipgloss.Color("#626262")),
+		help: s.SetString("Press Esc/C-c/q to quit").
+			Foreground(lipgloss.Color("#626262")),
 		since: s.Width(barPad).Padding(0, 1).AlignHorizontal(lipgloss.Right),
 	}
 	return styles
@@ -239,14 +237,14 @@ func (self *WaitModel) View() tea.View {
 	style := &self.styles
 	b := self.b
 	b.Reset()
-	b.WriteString("\n")
+	b.WriteByte('\n')
 
 	d := time.Since(self.startedAt)
 	b.WriteString(style.Since(d.Truncate(time.Second).String()))
 
 	b.WriteString(self.progress.ViewAs(self.percent))
 
-	b.WriteString(" ")
+	b.WriteByte(' ')
 	timeLeft := self.waitMax - d
 	b.WriteString(timeLeft.Truncate(time.Second).String())
 
@@ -297,14 +295,14 @@ func objectExistsStateRetryable(ctx context.Context, input *s3.HeadObjectInput,
 		return false, nil
 	}
 
-	var errorType *types.NotFound
-	if errors.As(err, &errorType) {
+	if _, ok := errors.AsType[*types.NotFound](err); ok {
 		return true, nil
 	}
 
-	var ae smithy.APIError
-	if errors.As(err, &ae); ae.ErrorCode() == "Forbidden" {
-		return true, nil
+	if ae, ok := errors.AsType[smithy.APIError](err); ok {
+		if ae.ErrorCode() == "Forbidden" {
+			return true, nil
+		}
 	}
 	return false, err
 }
