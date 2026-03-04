@@ -69,8 +69,8 @@ func init() {
 func Wait(object string) error {
 	model := NewWaitModel(s3Client, s3Bucket, object).WithTimeout(waitMax)
 	defer model.Wait()
-	progress := tea.NewProgram(model, tea.WithOutput(os.Stderr))
 
+	progress := tea.NewProgram(model, tea.WithOutput(os.Stderr))
 	if _, err := progress.Run(); err != nil {
 		return fmt.Errorf("tea program: %w", err)
 	}
@@ -170,8 +170,8 @@ func (self *WaitModel) Wait() {
 func (self *WaitModel) Init() tea.Cmd {
 	self.startedAt = time.Now()
 	return tea.Sequence(
-		tea.Println("waiting for ", self.object+sqlExt),
 		tickCmd(time.Second),
+		tea.Println("waiting for "+self.object+sqlExt),
 		tea.Batch(self.waitStarted(), self.waitError(), self.waitOk()))
 }
 
@@ -215,8 +215,8 @@ func (self *WaitModel) handleWaits(m waitMsg) (*WaitModel, tea.Cmd) {
 		self.cancel(m.err)
 		return self, self.quitCmd
 	} else if m.started {
-		return self, tea.Sequence(tea.Println(style.Green("✓ started"),
-			" [", time.Since(self.startedAt).Truncate(time.Second), "]"))
+		return self, tea.Println(style.Green("✓ started"),
+			" [", time.Since(self.startedAt).Truncate(time.Second), "]")
 	}
 
 	self.contentLength = m.size
@@ -350,7 +350,6 @@ func (self *WaitModel) waitOk() tea.Cmd {
 		if err != nil {
 			return waitMsg{err: err}
 		}
-
 		return waitMsg{size: size}
 	}
 }
